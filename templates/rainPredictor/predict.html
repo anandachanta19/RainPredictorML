@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rain Prediction</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-image: url("https://img.freepik.com/free-photo/closeup-shot-wet-glass-reflecting-rainy-forest-scenery_181624-23365.jpg");
+            background-size: cover;
+            background-attachment: fixed;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .container {
+            background: rgba(10, 10, 10, 0.2);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px 0 rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            padding: 40px 30px;
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+            color: white;
+        }
+        
+        h1 {
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #ffffff;
+        }
+
+        p {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 30px;
+        }
+        
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        input[type="text"] {
+            padding: 15px;
+            font-size: 16px;
+            border: 2px solid #ffffff;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0);
+            color: #fff;
+            outline: none;
+        }
+        
+        input[type="text"]:focus {
+            background: rgba(255, 255, 255, 0);
+            color: #ffffff;
+            font-weight: 600;
+            border-color: rgba(255, 255, 255, 0.5); 
+            outline: none;
+        }
+        
+        input[type="text"]::placeholder {
+            color: #ffffff;
+            font-weight: 600;
+            opacity: 1;
+        }
+        
+
+        button {
+            padding: 15px;
+            font-size: 18px;
+            font-weight: 600;
+            color: white;
+            background-color: rgba(255, 255, 255, 0);
+            border: 2px solid white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        button:hover {
+            background-color: rgba(0, 0, 0, 0.27);
+            transform: translateY(-2px);
+        }
+
+        .result {
+            margin-top: 25px;
+            font-size: 20px;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .result-yes {
+            background-color: rgba(255, 255, 255, 0);
+            color: #fff;
+        }
+
+        .result-no {
+            background-color: rgba(255, 255, 255, 0);
+            color: #fff;
+        }
+
+        .loading {
+            font-size: 18px;
+            font-weight: 600;
+            display: none;
+            color: #fff;
+            margin-top: 10px;
+        }
+        
+        .loading.show {
+            display: inline-block;
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 28px;
+            }
+
+            p {
+                font-size: 14px;
+            }
+
+            button {
+                font-size: 16px;
+            }
+        }
+    </style>
+    <script>
+        function showLoading() {
+            const loadingText = document.getElementById('loading');
+            loadingText.classList.add('show');
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Rain Prediction</h1>
+        <p>Enter your location below to check if it will rain tomorrow!</p>
+        <form method="post" onsubmit="showLoading()">
+            {% csrf_token %}
+            <input type="text" id="location" name="location" placeholder="Enter your location..." required>
+            <button type="submit">Predict</button>
+        </form>
+
+        <div id="loading" class="loading">Predicting...</div>
+
+        {% if result is not None %}
+            <div class="result {% if result == 'Yes' %}result-yes{% else %}result-no{% endif %}">
+                {% if result == 'Yes' %}
+                    <strong>It will rain tomorrow in {{ location_name }}. Don't forget your umbrella! ☔</strong>
+                {% else %}
+                    <strong>It will be sunny in {{ location_name }}. Enjoy your day! 🌞</strong>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>
