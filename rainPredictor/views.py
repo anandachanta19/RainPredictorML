@@ -79,7 +79,6 @@ def predict_rain(request):
 
             if lat is not None and lon is not None:
                 features = preprocess_data(lat, lon)
-                print(features)
                 if features is not None:
                     prediction = model.predict(features)
                     result = "Yes" if prediction[0] == 1 else "No"
