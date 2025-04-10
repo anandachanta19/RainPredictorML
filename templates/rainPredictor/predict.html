@@ -122,6 +122,15 @@
         .loading.show {
             display: inline-block;
         }
+
+        .error-message {
+            background-color: rgba(255, 99, 71, 0.7);
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-weight: 600;
+        }
         
         @media (max-width: 768px) {
             h1 {
@@ -155,6 +164,12 @@
         </form>
 
         <div id="loading" class="loading">Predicting...</div>
+
+        {% if error %}
+            <div class="error-message">
+                {{ error }}
+            </div>
+        {% endif %}
 
         {% if result is not None %}
             <div class="result {% if result == 'Yes' %}result-yes{% else %}result-no{% endif %}">
