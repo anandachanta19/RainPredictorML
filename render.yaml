@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: rain-predictor-ml
+    env: python
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn RainPredictorML.wsgi:app --bind 0.0.0.0:$PORT"
+    envVars:
+      - key: DEBUG
+        value: "False"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: PYTHON_VERSION
+        value: 3.11.0
