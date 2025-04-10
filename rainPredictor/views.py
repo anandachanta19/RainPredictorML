@@ -40,7 +40,7 @@ def fetch_weather_data(lat, lon):
 
         if "hourly" not in data:
             logger.error("No hourly data in API response")
-            return None, None
+            return None, None, None
 
         hourly_data = data["hourly"]
         try:
@@ -50,8 +50,9 @@ def fetch_weather_data(lat, lon):
             index_9am = hourly_data["time"].index(time_9am)
             index_3pm = hourly_data["time"].index(time_3pm)
         except ValueError as e:
-            logger.error(f"Time index error: {e}, available times: {hourly_data['time']}")
-            return None, None
+            error_msg = f"Time index error: {e}, available times: {hourly_data['time']}"
+            logger.error(error_msg)
+            return None, None, "Forecast data for tomorrow is not yet available. Please try again later when the API can provide data for the required forecast timings."
 
         data_9am = {
             "humidity": hourly_data["relative_humidity_2m"][index_9am],
@@ -66,19 +67,19 @@ def fetch_weather_data(lat, lon):
             "cloud_cover": hourly_data["cloud_cover"][index_3pm],
         }
         logger.info(f"Weather data retrieved successfully: 9am={data_9am}, 3pm={data_3pm}")
-        return data_9am, data_3pm
+        return data_9am, data_3pm, None
     except requests.exceptions.RequestException as e:
         logger.error(f"API request failed: {e}")
-        return None, None
+        return None, None, None
     except Exception as e:
         logger.error(f"Unexpected error in fetch_weather_data: {e}")
-        return None, None
+        return None, None, None
 
 def preprocess_data(lat, lon):
-    data_9am, data_3pm = fetch_weather_data(lat, lon)
+    data_9am, data_3pm, error_message = fetch_weather_data(lat, lon)
     if data_9am is None or data_3pm is None:
         logger.error("Missing weather data, cannot preprocess")
-        return None
+        return None, error_message
 
     try:
         feature_array = np.array([[data_9am["humidity"], data_3pm["humidity"],
@@ -86,10 +87,10 @@ def preprocess_data(lat, lon):
                                data_9am["cloud_cover"], data_3pm["cloud_cover"],
                                data_9am["temperature"], data_3pm["temperature"]]])
         logger.info(f"Preprocessed feature array: {feature_array}")
-        return feature_array
+        return feature_array, None
     except Exception as e:
         logger.error(f"Error in preprocess_data: {e}")
-        return None
+        return None, None
 
 def get_lat_lon(location_name):
     logger.info(f"Getting coordinates for location: {location_name}")
@@ -123,9 +124,9 @@ def predict_rain(request):
                 error = f"Could not find coordinates for location: {location_name}"
                 logger.error(error)
             else:
-                features = preprocess_data(lat, lon)
+                features, error_message = preprocess_data(lat, lon)
                 if features is None:
-                    error = f"Could not fetch weather data for {location_name}"
+                    error = error_message if error_message else f"Could not fetch weather data for {location_name}"
                     logger.error(error)
                 elif model is None:
                     error = "Prediction model is not available"
